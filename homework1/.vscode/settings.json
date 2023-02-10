@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "complex.h": "c",
+        "tgmath.h": "c"
+    }
+}

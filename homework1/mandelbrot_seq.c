@@ -1,26 +1,26 @@
 #include <stdio.h>
-#include <tgmath.h>
+// #include <tgmath.h>
 #include <complex.h>
 
-#define N 32
+#define N 256
 #define B 2
-#define W 128
-#define H 128
-#define dx 2*B/(W-1)
-#define dy 2*B/(H-1)
+#define W 256
+#define H 256
+#define dx 2*B/(W)
+#define dy 2*B/(H)
 
-unsigned char color[W*H];
+unsigned int color[W][H];
 
 int cal_pixel(double complex d, int b, int n) {
-	printf("hej hej");
 
 	int count = 1;
 	double complex z = 0;
-	while ((cabs(z) < b) && (count < n)) {
+
+	while (cabs(z) <= b && count < n) {
 		z = z*z + d;
 		count += 1;
 	}
-
+	printf("count = %d\n", count);	
 	return count;	
 }
 
@@ -30,24 +30,23 @@ int main () {
 		for (int y = 0; y < H; y++) {
 			double dimag = y * dy - B;
 			double complex d = dreal + I * dimag;  
-			color[x+y*H] = cal_pixel(d, B, N);
+			printf("d = %.2f %+.2fi, ", creal(d), cimag(d));
+			color[x][y] = cal_pixel(d, B, N);
+			// printf("%hhn", color[x][y]);
 		} 
 	}
-
-
-
 	FILE *fp;
 	fp = fopen("color.txt","w");
 
-	// for (j = 0; j < N; j++) {
-	// 	for (i = 0; i < M; i++) {
-	// 		fprintf(fp, "%hhu ", color[i+j*M]);
-	// 	}
-	// 	fprintf(fp, "\n");
-	// }
-	// fclose(fp);
+	for (int j = 0; j < W; j++) {
+		for (int i = 0; i < H; i++) {
+			fprintf(fp, "%d ", color[j][i]);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
 	
 	return 1;
 }
 
-main();
+int main();
