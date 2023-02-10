@@ -1,7 +1,7 @@
 # Instruction for loggin in Dardel
 
 Create a Kerberos ticket and then ssh to Dardel:
-´´´
+```
 kinit -f whafu@NADA.KTH.SE
 ssh -o GSSAPIDelegateCredentials=yes -o GSSAPIKeyExchange=yes -o GSSAPIAuthentication=yes whafu@dardel.pdc.kth.se
 ´´´
