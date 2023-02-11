@@ -3,10 +3,11 @@ import numpy as np
 import sys
 np.set_printoptions(threshold=sys.maxsize)
 
-MAX_ITER = 80
+N = 256
+B = 2
 # Image size (pixels)
-WIDTH = 100
-HEIGHT = 100
+W = 100
+H = 100
 # Plot window
 RE_START = -2
 RE_END = 1
@@ -18,30 +19,33 @@ palette = []
 def mandelbrot(c):
     z = 0
     n = 0
-    while abs(z) <= 2 and n < MAX_ITER:
+    while abs(z) <= B and n < N:
         z = z*z + c
         n += 1
     return n
 
-if __name__ == "__main__":
-    colors = np.zeros((WIDTH, HEIGHT), dtype=int)
-    im = Image.new('RGB', (WIDTH, HEIGHT), (0, 0, 0))
+def main():
+    colors = np.zeros((W, H), dtype=int)
+    im = Image.new('RGB', (W, H), (0, 0, 0))
     draw = ImageDraw.Draw(im)
 
-    for x in range(0, WIDTH):
-        for y in range(0, HEIGHT):
+    for x in range(0, W):
+        for y in range(0, H):
             # Convert pixel coordinate to complex number
-            c = complex(RE_START + (x / WIDTH) * (RE_END - RE_START),
-                        IM_START + (y / HEIGHT) * (IM_END - IM_START))
+            c = complex(RE_START + (x / W) * (RE_END - RE_START),
+                        IM_START + (y / H) * (IM_END - IM_START))
             # Compute the number of iterations
             m = mandelbrot(c)
             # The color depends on the number of iterations
-            color = 255 - int(m * 255 / MAX_ITER)
+            color = 255 - int(m * 255 / N)
             print(f"m: {m}, c: {c}, color: {color}")
             # Plot the point
-            # draw.point([x, y], (m, m, m))
+            draw.point([x, y], (m, m, m))
             colors[x, y] = int(m)
     
     # print(colors)
-    np.savetxt('output.txt', colors.astype(int), delimiter=' ', fmt='%i') 
-    im.save('output.png', 'PNG')
+    np.savetxt('color_python.txt', colors.astype(int), delimiter=' ', fmt='%i') 
+    im.save('color_python.png', 'PNG')
+
+if __name__ == "__main__":
+    main()

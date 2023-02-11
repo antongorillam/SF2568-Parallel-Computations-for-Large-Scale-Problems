@@ -2,11 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def main():
-    # data = np.loadtxt("color.txt", skiprows=128)
-    data = np.loadtxt("color.txt", dtype=int)
-    # for i,line in enumerate(fh):
-    #     if i is n: break
-    print(data.shape)
+    data = np.loadtxt("color_c.txt", dtype=int)
+    # data = np.loadtxt("color_python.txt", dtype=int)
+
     plt.imshow(data)
     plt.show()
 
