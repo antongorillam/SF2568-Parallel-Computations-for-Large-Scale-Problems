@@ -7,20 +7,11 @@
 #define W 256
 #define H 256
 
-#define RE_START -2
-#define RE_END 1
-#define IM_START -1
-#define IM_END 1
-
-
-// #define dx 2*B/(W)
-// #define dy 2*B/(H)
-
 unsigned int color[W][H];
 
 int cal_pixel(double complex d, int b, int n) {
 
-	int count = 0;
+	int count = 1;
 	double complex z = 0;
 
 	while (cabs(z) <= b && count < n) {
@@ -32,15 +23,16 @@ int cal_pixel(double complex d, int b, int n) {
 }
 
 int main () { 
-	for (int x = 0; x < W; x++) {
-		double dreal = RE_START * ((double) x / (double) W) - RE_END - RE_START;
 
+	double dx = 2*((double) B/((double) W-1));
+	double dy = 2*((double) B/((double) H-1));
+
+	for (int x = 0; x < W; x++) {
+		double dreal = x * dx - B;
 		for (int y = 0; y < H; y++) {
-			double dimag = IM_START + ((double) y / (double) H) * (IM_END - IM_START);
-			printf("%1d + (%1d / %1d) * (%1d - %1d)\n", IM_START, y, H, IM_END, IM_START);
-			printf("%.5f\n", dimag);
+			double dimag = y * dy - B;
 			double complex d = dreal + I * dimag;  
-			// printf("d = %.2f %+.2fi, ", creal(d), cimag(d));
+			printf("d = %.2f %+.2fi, ", creal(d), cimag(d));
 			color[x][y] = cal_pixel(d, B, N);
 			// printf("%hhn", color[x][y]);
 		} 
@@ -55,6 +47,7 @@ int main () {
 		fprintf(fp, "\n");
 	}
 	fclose(fp);
+	
 	return 1;
 }
 
