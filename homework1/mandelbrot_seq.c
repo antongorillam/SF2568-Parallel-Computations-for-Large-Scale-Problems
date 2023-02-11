@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <tgmath.h>
+// #include <tgmath.h>
 #include <complex.h>
 
 #define N 32
@@ -12,11 +12,10 @@
 unsigned char color[W*H];
 
 int cal_pixel(double complex d, int b, int n) {
-	printf("hej hej");
 
 	int count = 1;
 	double complex z = 0;
-	while ((cabs(z) < b) && (count < n)) {
+	while (cabs(z) < b && count < n) {
 		z = z*z + d;
 		count += 1;
 	}
