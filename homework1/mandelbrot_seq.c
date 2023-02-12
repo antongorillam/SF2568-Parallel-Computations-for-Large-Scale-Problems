@@ -7,7 +7,7 @@
 #define W 256
 #define H 256
 
-unsigned int color[W][H];
+unsigned int color[W*H];
 
 int cal_pixel(double complex d, int b, int n) {
 
@@ -33,16 +33,16 @@ int main () {
 			double dimag = y * dy - B;
 			double complex d = dreal + I * dimag;  
 			printf("d = %.2f %+.2fi, ", creal(d), cimag(d));
-			color[x][y] = cal_pixel(d, B, N);
+			color[x + y*H] = cal_pixel(d, B, N);
 			// printf("%hhn", color[x][y]);
 		} 
 	}
 	FILE *fp;
-	fp = fopen("color_c.txt","w");
+	fp = fopen("color_seq_c.txt","w");
 
 	for (int j = 0; j < W; j++) {
 		for (int i = 0; i < H; i++) {
-			fprintf(fp, "%d ", color[j][i]);
+			fprintf(fp, "%d ", color[j + i*H]);
 		}
 		fprintf(fp, "\n");
 	}
