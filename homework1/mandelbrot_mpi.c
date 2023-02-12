@@ -2,11 +2,12 @@
 #include <complex.h>
 #include <mpi.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define N 256
 #define B 2
-#define W 256
-#define H 256
+#define W 2048
+#define H 2048
 
 
 int cal_pixel(double complex d, int b, int n) {
@@ -23,7 +24,6 @@ int cal_pixel(double complex d, int b, int n) {
 }
 
 int main (int argc, char **argv) { 
-	printf("hes");
 
     int rank, size, tag, rc, i;
     MPI_Status status;
@@ -42,12 +42,12 @@ int main (int argc, char **argv) {
 	if (rank == 0) { 
 		unsigned int *color_part;
 		color_part = malloc(wp*hp * sizeof(unsigned int));
-		// unsigned int *colors_tot;
-		// colors_tot = malloc(wp*hp * sizeof(unsigned int));
-		unsigned int colors_tot[wp*hp];
+		unsigned int *colors_tot;
+		colors_tot = malloc(wp*hp * sizeof(unsigned int));
+		// unsigned int colors_tot[wp*hp];
 		for (int p = 1; p < size; p++) {
 			// Do receive msg from processors 
-			printf("men kolla: %d\n", p);
+			// printf("men kolla: %d\n", p);
 			rc = MPI_Recv(color_part, wp*hp, MPI_UNSIGNED, p, tag, MPI_COMM_WORLD, &status);
 			int xoff = (p-1)*(W/(size-1));
 			for (int x = 0; x < wp; x++) {
@@ -60,17 +60,23 @@ int main (int argc, char **argv) {
 		}
 
 		FILE *fp;
-		
-		fp = fopen("color_parallel_c.txt","w");
+		char file_name[30];
+		char size_str[12];
+		sprintf(size_str, "%d", size);
+		strcpy(file_name, "color_parallel_dardel_size_");
+		strcat(file_name, size_str);
+
+		fp = fopen(file_name,"w");
 		for (int j = 0; j < W; j++) {
 			for (int i = 0; i < H; i++) {
 				fprintf(fp, "%d ", colors_tot[j + i*H]);
 			}
 			fprintf(fp, "\n");
 		}
-		// free(colors_tot);
+		free(colors_tot);
 		fclose(fp);			
-		printf("klar");
+		printf("Size: %s Finished\n", size_str);
+		printf("Saved as: %s \n", file_name);
 		return 1;
 
 	} else {
