@@ -65,6 +65,7 @@ int main (int argc, char **argv) {
 		sprintf(size_str, "%d", size);
 		strcpy(file_name, "color_parallel_dardel_size_");
 		strcat(file_name, size_str);
+		strcat(file_name, ".txt");
 
 		fp = fopen(file_name,"w");
 		for (int j = 0; j < W; j++) {
@@ -77,7 +78,6 @@ int main (int argc, char **argv) {
 		fclose(fp);			
 		printf("Size: %s Finished\n", size_str);
 		printf("Saved as: %s \n", file_name);
-		return 1;
 
 	} else {
 		double dx = 2*((double) B/((double) W-1));
@@ -111,7 +111,9 @@ int main (int argc, char **argv) {
 		rc = MPI_Send(color_part, wp*hp, MPI_UNSIGNED, 0, tag, MPI_COMM_WORLD);
 		// free(color_part);
 	}
-
+	
+	MPI_Finalize();
+	return 0;
 }
 
 // int main();

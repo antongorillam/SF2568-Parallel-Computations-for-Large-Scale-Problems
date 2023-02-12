@@ -90,6 +90,7 @@ int main (int argc, char **argv) {
 		sprintf(size_str, "%d", size);
 		strcpy(file_name, "color_parallel_new_dardel_size_");
 		strcat(file_name, size_str);
+		strcat(file_name, ".txt");
 
 		fp = fopen(file_name, "w");
 		for (int j = 0; j < W; j++) {
