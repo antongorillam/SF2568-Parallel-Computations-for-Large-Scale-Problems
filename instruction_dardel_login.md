@@ -8,8 +8,8 @@ ssh -o GSSAPIDelegateCredentials=yes -o GSSAPIKeyExchange=yes -o GSSAPIAuthentic
 
 To allocate time-slot, run `salloc -n <#core> -t <#time> -p shared -A edu23.sf2568`, an example might be:
 ```
-cc mandelbrot_mpi.c -o mandelbrot_mpi.x
-salloc -n 2 -t 00:00:45 -p shared -A edu23.sf2568
-srun ./mandelbrot_mpi.x
+cc mandelbrot_mpi_new.c -o mandelbrot_mpi_new.x
+salloc -n 1 -t 00:00:45 -p shared -A edu23.sf2568
+srun ./mandelbrot_mpi_new.x
 ```
 
