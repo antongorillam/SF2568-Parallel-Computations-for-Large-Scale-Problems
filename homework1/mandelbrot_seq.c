@@ -1,5 +1,4 @@
 #include <stdio.h>
-// #include <tgmath.h>
 #include <complex.h>
 
 #define N 256
@@ -11,14 +10,15 @@ unsigned int color[W*H];
 
 int cal_pixel(double complex d, int b, int n) {
 
-	int count = 1;
+	unsigned int count = 1;
 	double complex z = 0;
 
 	while (cabs(z) <= b && count < n) {
+		// printf("cabs(z) %.2f, z = %.2f %+.2fi, count = %d\n", cabs(z), creal(z), cimag(z), count);
 		z = z*z + d;
 		count += 1;
 	}
-	printf("count = %d\n", count);	
+	// printf("count = %d\n", count);	
 	return count;	
 }
 
@@ -31,12 +31,18 @@ int main () {
 		double dreal = x * dx - B;
 		for (int y = 0; y < H; y++) {
 			double dimag = y * dy - B;
-			double complex d = dreal + I * dimag;  
-			printf("d = %.2f %+.2fi, ", creal(d), cimag(d));
+			double complex d = dreal + I * dimag; 
+			printf("dy %.2f, dx %.2f\n", dy, dx); 
+			printf("From rank: d = %.2f %+.2fi, abs: %.2f\n", creal(d), cimag(d), cabs(d));
 			color[x + y*H] = cal_pixel(d, B, N);
-			// printf("%hhn", color[x][y]);
+			// printf("W*H: %d, x + y*H: %d, color[x + y*H]: %d\n", W*H, x + y*H, color[x + y*H]);
 		} 
 	}
+	// for (int x = 0; x < W; x++) {
+	// 	for (int y = 0; y < H; y++) {
+	// 		if (color[x + y*H] != -1) {printf("color_part[%d + %d*%d] = %d\n", x, y, H, color[x + y*H]);}	
+	// 	}	
+	// }
 	FILE *fp;
 	fp = fopen("color_seq_c.txt","w");
 
