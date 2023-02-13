@@ -89,9 +89,9 @@ int main (int argc, char **argv) {
 		int xoff = (rank-1)*(W/(size-1));
 		int yoff = 0;
 		for (int x = 0; x < wp; x++) {
-			double dreal = (x+xoff) * dx - B *.5;
+			double dreal = (x+xoff) * dx - B;
 			for (int y = 0; y < hp; y++) {
-				double dimag = (y+yoff) * dy - B *.5;
+				double dimag = (y+yoff) * dy - B;
 				double complex d = dreal + I * dimag;
 				color_part[x + y*hp] = cal_pixel(d, B, N);
 			} 
