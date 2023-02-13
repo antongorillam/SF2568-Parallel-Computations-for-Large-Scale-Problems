@@ -1,2 +1,4 @@
 password.txt
-*/*.out
+/homework1/*.x
+/homework1/core
+/homework1/.vscode
