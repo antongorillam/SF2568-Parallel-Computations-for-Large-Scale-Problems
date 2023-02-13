@@ -87,20 +87,13 @@ int main (int argc, char **argv) {
 		// unsigned int color_part[wp*hp];
 		int xoff = (rank-1)*(W/(size-1));
 		int yoff = 0;
-		int zoom = 2;
+		double zoom = 0.5;
 		for (int x = 0; x < wp; x++) {
 			double dreal = (x+xoff) * dx - B * zoom;
 			for (int y = 0; y < hp; y++) {
 				double dimag = (y+yoff) * dy - B * zoom;
 				double complex d = dreal + I * dimag;
-				// printf("xoff %d, dy %.2f, dx %.2f\n", xoff, dy, dx);
-				// printf("From rank: d = %.2f %+.2fi, abs: %.2f\n", creal(d), cimag(d), cabs(d));
-				// printf("wp: %d, hp: %d, \n", wp, hp);
-				// printf("wp*hp: %d, x + y*hp: %d \n", wp*hp, x + y*hp );
-				// printf("wp*hp: %d\n", wp*hp);
 				color_part[x + y*hp] = cal_pixel(d, B, N);
-				// printf("color_part[%d + %d*%d] = %d\n", x, y, hp, color_part[x + y*hp]);	
-				// printf("malloc(%d*%d * sizeof(unsigned int) = %d, size = %d\n", wp, hp, (int) (wp*hp * sizeof(unsigned int)), size);	
 			} 
 		}
 		// for (int x = 0; x < wp; x++) {
