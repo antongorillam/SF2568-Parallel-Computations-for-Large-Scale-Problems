@@ -63,7 +63,7 @@ int main (int argc, char **argv) {
 		char file_name[30];
 		char size_str[12];
 		sprintf(size_str, "%d", size);
-		strcpy(file_name, "color_parallel_dardel_size_");
+		strcpy(file_name, "color_parallel_zoom_dardel_size_");
 		strcat(file_name, size_str);
 		strcat(file_name, ".txt");
 
@@ -87,11 +87,11 @@ int main (int argc, char **argv) {
 		// unsigned int color_part[wp*hp];
 		int xoff = (rank-1)*(W/(size-1));
 		int yoff = 0;
-
+		int zoom = 2;
 		for (int x = 0; x < wp; x++) {
-			double dreal = (x+xoff) * dx - B;
+			double dreal = (x+xoff) * dx - B * zoom;
 			for (int y = 0; y < hp; y++) {
-				double dimag = (y+yoff) * dy - B;
+				double dimag = (y+yoff) * dy - B * zoom;
 				double complex d = dreal + I * dimag;
 				// printf("xoff %d, dy %.2f, dx %.2f\n", xoff, dy, dx);
 				// printf("From rank: d = %.2f %+.2fi, abs: %.2f\n", creal(d), cimag(d), cabs(d));
