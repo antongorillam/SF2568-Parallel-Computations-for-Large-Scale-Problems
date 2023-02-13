@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def main():
-    file_name = "color_parallel_new_dardel_size_1"
+    file_name = "color_parallel_zoom_dardel_size_2"
     data = np.loadtxt(file_name + ".txt", dtype=int)
     # data = np.loadtxt("color_python.txt", dtype=int)
 
