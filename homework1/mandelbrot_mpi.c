@@ -80,7 +80,7 @@ int main (int argc, char **argv) {
 		printf("Saved as: %s \n", file_name);
 
 	} else {
-		double zoom = 0.1;
+		double zoom = 0.2;
 		double dx = 2*((double) (B * zoom)/((double) W-1));
 		double dy = 2*((double) (B * zoom)/((double) H-1));
 		unsigned int * color_part;
