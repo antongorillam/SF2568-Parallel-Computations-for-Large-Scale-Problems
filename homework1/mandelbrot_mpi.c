@@ -80,18 +80,18 @@ int main (int argc, char **argv) {
 		printf("Saved as: %s \n", file_name);
 
 	} else {
-		double dx = 2*((double) B/((double) W-1));
-		double dy = 2*((double) B/((double) H-1));
+		double zoom = 0.5;
+		double dx = 2*((double) (B * zoom)/((double) W-1));
+		double dy = 2*((double) (B * zoom)/((double) H-1));
 		unsigned int * color_part;
 		color_part = malloc(wp*hp * sizeof(unsigned int));
 		// unsigned int color_part[wp*hp];
 		int xoff = (rank-1)*(W/(size-1));
 		int yoff = 0;
-		double zoom = 0.5;
 		for (int x = 0; x < wp; x++) {
-			double dreal = (x+xoff) * dx - B * zoom;
+			double dreal = (x+xoff) * dx - B *.5;
 			for (int y = 0; y < hp; y++) {
-				double dimag = (y+yoff) * dy - B * zoom;
+				double dimag = (y+yoff) * dy - B *.5;
 				double complex d = dreal + I * dimag;
 				color_part[x + y*hp] = cal_pixel(d, B, N);
 			} 
