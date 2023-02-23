@@ -80,7 +80,7 @@ int main (int argc, char **argv) {
 		printf("Saved as: %s \n", file_name);
 
 	} else {
-		double zoom = 0.01;
+		double zoom = 0.1;
 		double dx = zoom * 2 * ((double) (B * zoom)/((double) W-1));
 		double dy = zoom * 2 * ((double) (B * zoom)/((double) H-1));
 		unsigned int * color_part;
@@ -89,9 +89,9 @@ int main (int argc, char **argv) {
 		int xoff = (rank-1)*(W/(size-1));
 		int yoff = 0;
 		for (int x = 0; x < wp; x++) {
-			double dreal = (x+xoff) * dx - B * .2;
+			double dreal = (x+xoff + 2) * dx - B;
 			for (int y = 0; y < hp; y++) {
-				double dimag = (y+yoff) * dy - B * .2;
+				double dimag = (y+yoff + 2) * dy - B;
 				double complex d = dreal + I * dimag;
 				color_part[x + y*hp] = cal_pixel(d, B, N);
 			} 
