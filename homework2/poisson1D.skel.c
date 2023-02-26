@@ -15,7 +15,7 @@
 
 
 /* define problem to be solved */
-#define N 6   /* number of inner grid points */
+#define N 10   /* number of inner grid points */
 #define K 10 /* number of iterations */
 #define h 1.0 / ((double) N+1)
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     int L = (double) N/ (double) P;
     int R = N % P;
     // int n = p*L+MIN(p,R)+i;
-    printf("p: %d, I: %.2f, L: %d, R: %d\n", p, I, L, R);
+    // printf("p: %d, I: %.2f, L: %d, R: %d\n", p, I, L, R);
 
     double *unew;
     double *u;
@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
     */
     u = (double *) calloc(I+2, sizeof(double));
 
-    if (p==0) {
-        u[L-2] = 69.0;
-    }
+    // if (p==0) {
+    //     u[L-2] = 42.0;
+    // }
     // unew[(int) I] = 10;
     // for (int i = 0; i < I+2; i++) {
     //     printf("unew[%d]: %.2f \n", i, unew[i]); 
@@ -87,9 +87,7 @@ int main(int argc, char *argv[])
     for (int step = 0; step < K; step++) {
         /* RB communication of overlap */
         
-        // Buffer these elements
-        // u[L-1] = (double *) calloc(1, sizeof(double));
-        // u[0] = (double *) calloc(1, sizeof(double));         
+        // Buffer these elements  
         if (p == 0) {
             MPI_Send(&u[L-2], 1, MPI_DOUBLE, p+1, tag, MPI_COMM_WORLD);
             MPI_Recv(&u[L-1], 1, MPI_DOUBLE, p+1, tag, MPI_COMM_WORLD, &status);
@@ -125,22 +123,36 @@ int main(int argc, char *argv[])
         // if (p==0){
         //     printf("For p: %d, u[0]: %.2f \n", p, u[0]);
         // }
-        
-
     }
+    if (p==1) {
+        for (int i = 0; i < I+2; i++) {
+            printf("For p: %d, u[%d]: %.10f \n", p, i, u[i]);
+        }
+    }
+    
 
-/* output for graphical representation */
-/* Instead of using gather (which may lead to excessive memory requirements
-   on the master process) each process will write its own data portion. This
-   introduces a sequentialization: the hard disk can only write (efficiently)
-   sequentially. Therefore, we use the following strategy:
-   1. The master process writes its portion. (file creation)
-   2. The master sends a signal to process 1 to start writing.
-   3. Process p waites for the signal from process p-1 to arrive.
-   4. Process p writes its portion to disk. (append to file)
-   5. process p sends the signal to process p+1 (if it exists).
-*/
-
+    /* output for graphical representation */
+    /* Instead of using gather (which may lead to excessive memory requirements
+    on the master process) each process will write its own data portion. This
+    introduces a sequentialization: the hard disk can only write (efficiently)
+    sequentially. Therefore, we use the following strategy:
+    1. The master process writes its portion. (file creation)
+    2. The master sends a signal to process 1 to start writing.
+    3. Process p waites for the signal from process p-1 to arrive.
+    4. Process p writes its portion to disk. (append to file)
+    5. process p sends the signal to process p+1 (if it exists).
+    */
+    FILE *fp;
+    if (p==0){ // Master process
+        fp = fopen("test.csv", "w");
+		for (int i = 0; i < I; i++) {
+		    fprintf(fp, "%f, ", unew[i]);
+        }
+        fprintf(fp, "\n");
+        fclose(fp);		
+    }
+    free(u); 
+    free(unew);
 /* That's it */
     MPI_Finalize();
     exit(0);

@@ -13,13 +13,11 @@ int main(int argc, char **argv) {
     if (rank == 0) {
         strcpy(message, "Hello world!");
         for (i = 1; i < size; i++) {
-        rc = MPI_Send(message, 13, MPI_CHAR,
-        i, tag, MPI_COMM_WORLD);
+            rc = MPI_Send(message, 13, MPI_CHAR, i, tag, MPI_COMM_WORLD);
         }
     }
     else {
-        rc = MPI_Recv(message, 13, MPI_CHAR, 0,
-        tag, MPI_COMM_WORLD, &status);
+        rc = MPI_Recv(message, 13, MPI_CHAR, 0, tag, MPI_COMM_WORLD, &status);
     }
     printf("rank %d : %.13s\n", rank, message);
     rc = MPI_Finalize();
