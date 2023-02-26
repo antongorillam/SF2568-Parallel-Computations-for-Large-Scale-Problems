@@ -22,10 +22,10 @@
 
 /* implement coefficient functions */
 extern double r(const double x){
-    return - (double) pow(x, 2);
+    return 0;
 };
 extern double f(const double x){
-    return 1;
+    return x;
 };
 /* We assume linear data distribution. The formulae according to the lecture
    are:
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     */
     int u_size = (int) L+2;
     u = (double *) calloc(u_size, sizeof(double));
-    printf("p: %d, I: %f, L: %f, R: %d, u_size: %d\n", p, I, L, R, u_size);
+    // printf("p: %d, I: %f, L: %f, R: %d, u_size: %d\n", p, I, L, R, u_size);
 
     // if (p==0) {
     //     u[u_size-2] = 42.0;
@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
     /* Jacobi iteration */
     for (int step = 0; step < K; step++) {
         /* RB communication of overlap */
-        if (p==0 && step % 100 == 0) {
-            printf("At step: %d/%d", step, K);
+        if (p==0 && step % 1000 == 0) {
+            printf("At step: %d/%d\n", step, K);
         }
         
         // Buffer these elements  
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     if (p==0){ // Master process
         fp = fopen("hm2.csv", "w");
 		for (int i = 0; i < L; i++) {
-		    fprintf(fp, "%f, ", u[i+1]);
+		    fprintf(fp, "%f, ", unew[i]);
         }
         fclose(fp);		
         MPI_Send("hi", 2, MPI_CHAR, 1, tag, MPI_COMM_WORLD);
@@ -163,8 +163,9 @@ int main(int argc, char *argv[])
         MPI_Recv(message, 2, MPI_CHAR, p-1, tag, MPI_COMM_WORLD, &status);
         fp = fopen("hm2.csv", "a");
         for (int i = 0; i < L; i++) {
-		    fprintf(fp, "%f, ", u[i+1]);
+		    fprintf(fp, "%f, ", unew[i]);
         }
+        // fprintf(fp, "\n");
         if (p!=P-1) { // If it's not the last processor, keep sending the signals forward
             MPI_Send(message, 2, MPI_CHAR, p+1, tag, MPI_COMM_WORLD);
         }
@@ -175,7 +176,7 @@ int main(int argc, char *argv[])
     free(u); 
     free(unew);
 
-    printf("Process %d finished", p);
+    printf("Process %d finished\n", p);
     /* That's it */
     MPI_Finalize();
     exit(0);
