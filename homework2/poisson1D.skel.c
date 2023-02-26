@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
         //     unew[i] = (u[i]+u[i+2]-h*h*f((double) n * h))/(2.0-h*h*r((double) n * h));
         //     // printf("unew[i]: %.2f\n", unew[i]);
         // }
-	    // for (int i = 0; i < I; i++) {
-        //     u[i+1] = unew[i]; 
-        // }
+	    for (int i = 0; i < I; i++) {
+            u[i+1] = unew[i]; 
+        }
 
         // Test if passing parameters works
         // if (p==0){
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
     if (p==0){ // Master process
         fp = fopen("test.csv", "w");
 		for (int i = 0; i < I; i++) {
-		    fprintf(fp, "p%d: %f, ", p, u[i]);
+		    fprintf(fp, "p%d: %f, ", p, unew[i]);
         }
         fclose(fp);		
         MPI_Send("hi", 2, MPI_CHAR, 1, tag, MPI_COMM_WORLD);
@@ -159,9 +159,8 @@ int main(int argc, char *argv[])
         char message[2];
         MPI_Recv(message, 2, MPI_CHAR, p-1, tag, MPI_COMM_WORLD, &status);
         fp = fopen("test.csv", "a");
-        fprintf(fp, "p = %d, ", p);
         for (int i = 0; i < I; i++) {
-            fprintf(fp, "%f, ", u[i]);
+		    fprintf(fp, "p%d: %f, ", p, unew[i]);
         }
         fprintf(fp, "\n");
         fclose(fp);		
