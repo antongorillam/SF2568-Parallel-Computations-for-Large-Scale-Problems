@@ -22,10 +22,10 @@
 
 /* implement coefficient functions */
 extern double r(const double x){
-    return -pow();
+    return -x;
 };
 extern double f(const double x){
-    return x;
+    return cos(x);
 };
 /* We assume linear data distribution. The formulae according to the lecture
    are:
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
     */
     FILE *fp;
     if (p==0){ // Master process
-        fp = fopen("hm2.csv", "w");
+        fp = fopen("hm2_function01.csv", "w");
 		for (int i = 0; i < L; i++) {
 		    fprintf(fp, "%f, ", unew[i]);
         }
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
         
         char message[2]; // Nonesense message
         MPI_Recv(message, 2, MPI_CHAR, p-1, tag, MPI_COMM_WORLD, &status);
-        fp = fopen("hm2.csv", "a");
+        fp = fopen("hm2_function01.csv", "a");
         for (int i = 0; i < L; i++) {
 		    fprintf(fp, "%f, ", unew[i]);
         }
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     }
     
 
-    free(u); 
+    free(u);
     free(unew);
 
     printf("Process %d finished\n", p);
