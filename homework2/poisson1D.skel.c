@@ -5,6 +5,7 @@
  * C Michael Hanke 2006-12-12
  */
 
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 /* Use MPI */
@@ -15,16 +16,16 @@
 
 
 /* define problem to be solved */
-#define N 10   /* number of inner grid points */
-#define K 1 /* number of iterations */
+#define N 1000   /* number of inner grid points */
+#define K 1000000 /* number of iterations */
 #define h 1.0 / ((double) N+1)
 
 /* implement coefficient functions */
 extern double r(const double x){
-    return x;
+    return - (double) pow(x, 2);
 };
 extern double f(const double x){
-    return 4;
+    return 1;
 };
 /* We assume linear data distribution. The formulae according to the lecture
    are:
@@ -45,7 +46,6 @@ int main(int argc, char *argv[])
 
     int p, P, tag, n;
     tag = 42;
-
     MPI_Status status;
 
     MPI_Init(&argc, &argv);
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     }
 /* Compute local indices for data distribution */
     double I = ((double) (N+P-p-1)/ (double) P);
-    int L = (double) N/ (double) P;
+    double L = (double) N/ (double) P;
     int R = N % P;
     // int n = p*L+MIN(p,R)+i;
 
@@ -66,20 +66,20 @@ int main(int argc, char *argv[])
     double *u;
 
     /* arrays */
-    unew = (double *) malloc(I*sizeof(double));
+    unew = (double *) malloc((int) L*sizeof(double));
     /* Note: The following allocation includes additionally:
         - boundary conditins are set to zero
         - the initial guess is set to zero 
     */
     int u_size = (int) L+2;
     u = (double *) calloc(u_size, sizeof(double));
-    printf("p: %d, I: %f, L: %d, R: %d, u_size: %d\n", p, I, L, R, u_size);
+    printf("p: %d, I: %f, L: %f, R: %d, u_size: %d\n", p, I, L, R, u_size);
 
-    if (p==0) {
-        u[u_size-2] = 42.0;
-    } else if (p==1) {
-        u[1] = 192.0;
-    }
+    // if (p==0) {
+    //     u[u_size-2] = 42.0;
+    // } else if (p==1) {
+    //     u[1] = 192.0;
+    // }
     
     // unew[(int) I] = 10;
     // for (int i = 0; i < I+2; i++) {
@@ -90,6 +90,9 @@ int main(int argc, char *argv[])
     /* Jacobi iteration */
     for (int step = 0; step < K; step++) {
         /* RB communication of overlap */
+        if (p==0 && step % 100 == 0) {
+            printf("At step: %d/%d", step, K);
+        }
         
         // Buffer these elements  
         if (p == 0) {
@@ -114,12 +117,12 @@ int main(int argc, char *argv[])
         }
         
         // /* local iteration step */
-	    // for (int i = 0; i < I; i++) {
-        //     n = p*L+MIN(p,R)+i;
-        //     unew[i] = (u[i]+u[i+2]-h*h*f((double) n * h))/(2.0-h*h*r((double) n * h));
-        //     // printf("unew[i]: %.2f\n", unew[i]);
-        // }
-	    for (int i = 0; i < I; i++) {
+	    for (int i = 0; i < L; i++) {
+            n = p*L+MIN(p,R)+i;
+            unew[i] = (u[i]+u[i+2]-h*h*f((double) n * h))/(2.0-h*h*r((double) n * h));
+
+        }
+	    for (int i = 0; i < L; i++) {
             u[i+1] = unew[i]; 
         }
 
@@ -128,11 +131,11 @@ int main(int argc, char *argv[])
         //     printf("For p: %d, u[0]: %.2f \n", p, u[0]);
         // }
     }
-    if (p==0) {
-        for (int i = 0; i < u_size; i++) {
-            printf("For p: %d, u[%d]: %.10f \n", p, i, u[i]);
-        }
-    }
+    // if (p==0) {
+    //     for (int i = 0; i < L; i++) {
+    //         printf("For p: %d, u[%d]: %.10f \n", p, i, u[i+1]);
+    //     }
+    // }
     
 
     /* output for graphical representation */
@@ -148,27 +151,31 @@ int main(int argc, char *argv[])
     */
     FILE *fp;
     if (p==0){ // Master process
-        fp = fopen("test.csv", "w");
-		for (int i = 0; i < I; i++) {
-		    fprintf(fp, "p%d: %f, ", p, unew[i]);
+        fp = fopen("hm2.csv", "w");
+		for (int i = 0; i < L; i++) {
+		    fprintf(fp, "%f, ", u[i+1]);
         }
         fclose(fp);		
         MPI_Send("hi", 2, MPI_CHAR, 1, tag, MPI_COMM_WORLD);
     } else {
         
-        char message[2];
+        char message[2]; // Nonesense message
         MPI_Recv(message, 2, MPI_CHAR, p-1, tag, MPI_COMM_WORLD, &status);
-        fp = fopen("test.csv", "a");
-        for (int i = 0; i < I; i++) {
-		    fprintf(fp, "p%d: %f, ", p, unew[i]);
+        fp = fopen("hm2.csv", "a");
+        for (int i = 0; i < L; i++) {
+		    fprintf(fp, "%f, ", u[i+1]);
         }
-        fprintf(fp, "\n");
-        fclose(fp);		
+        if (p!=P-1) { // If it's not the last processor, keep sending the signals forward
+            MPI_Send(message, 2, MPI_CHAR, p+1, tag, MPI_COMM_WORLD);
+        }
+        fclose(fp);
     }
     
 
     free(u); 
     free(unew);
+
+    printf("Process %d finished", p);
     /* That's it */
     MPI_Finalize();
     exit(0);
