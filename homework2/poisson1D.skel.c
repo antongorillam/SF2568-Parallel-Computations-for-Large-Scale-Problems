@@ -22,7 +22,7 @@
 
 /* implement coefficient functions */
 extern double r(const double x){
-    return 0;
+    return -pow();
 };
 extern double f(const double x){
     return x;
