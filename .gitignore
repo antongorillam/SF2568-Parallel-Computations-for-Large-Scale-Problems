@@ -1,2 +1,5 @@
 password.txt
 **/*.x
+**/core
+**/.Rhistory
+**/.vscode

@@ -57,44 +57,38 @@ int main(int argc, char *argv[])
         exit(1);
     }
 /* Compute local indices for data distribution */
-    double I = ((double) (N+P-p-1)/ (double) P);
-    double L = (double) N/ (double) P;
+    // double I = ((double) (N+P-p-1)/ (double) P);
     int R = N % P;
     // int n = p*L+MIN(p,R)+i;
+    double L = ((double) N - R) / (double) P;
+    int u_size = (int) L+2;
 
     double *unew;
     double *u;
 
+
+    if (p < R) { // Handles residual
+        // printf("p%d runs\n", p);
+        u_size += 1;
+        L += 1;  
+    }
+
+    // printf("p: %d, L: %f, R: %d, u_size: %d\n", p, L, R, u_size);
     /* arrays */
-    unew = (double *) malloc((int) L*sizeof(double));
     /* Note: The following allocation includes additionally:
         - boundary conditins are set to zero
         - the initial guess is set to zero 
     */
-    int u_size = (int) L+2;
+    unew = (double *) malloc((int) L*sizeof(double));
     u = (double *) calloc(u_size, sizeof(double));
-    // printf("p: %d, I: %f, L: %f, R: %d, u_size: %d\n", p, I, L, R, u_size);
-
-    // if (p==0) {
-    //     u[u_size-2] = 42.0;
-    // } else if (p==1) {
-    //     u[1] = 192.0;
-    // }
-    
-    // unew[(int) I] = 10;
-    // for (int i = 0; i < I+2; i++) {
-    //     printf("unew[%d]: %.2f \n", i, unew[i]); 
-    // }
-    
 
     /* Jacobi iteration */
     for (int step = 0; step < K; step++) {
-        /* RB communication of overlap */
         if (p==0 && step % 1000 == 0) {
             printf("At step: %d/%d\n", step, K);
         }
+        /* RB communication of overlap */
         
-        // Buffer these elements  
         if (p == 0) {
             MPI_Send(&u[u_size-2], 1, MPI_DOUBLE, p+1, tag, MPI_COMM_WORLD);
             MPI_Recv(&u[u_size-1], 1, MPI_DOUBLE, p+1, tag, MPI_COMM_WORLD, &status);
@@ -125,18 +119,7 @@ int main(int argc, char *argv[])
 	    for (int i = 0; i < L; i++) {
             u[i+1] = unew[i]; 
         }
-
-        // Test if passing parameters works
-        // if (p==0){
-        //     printf("For p: %d, u[0]: %.2f \n", p, u[0]);
-        // }
     }
-    // if (p==0) {
-    //     for (int i = 0; i < L; i++) {
-    //         printf("For p: %d, u[%d]: %.10f \n", p, i, u[i+1]);
-    //     }
-    // }
-    
 
     /* output for graphical representation */
     /* Instead of using gather (which may lead to excessive memory requirements
@@ -151,7 +134,7 @@ int main(int argc, char *argv[])
     */
     FILE *fp;
     if (p==0){ // Master process
-        fp = fopen("hm2_function01.csv", "w");
+        fp = fopen("hm2_test_res.csv", "w");
 		for (int i = 0; i < L; i++) {
 		    fprintf(fp, "%f, ", unew[i]);
         }
@@ -161,7 +144,7 @@ int main(int argc, char *argv[])
         
         char message[2]; // Nonesense message
         MPI_Recv(message, 2, MPI_CHAR, p-1, tag, MPI_COMM_WORLD, &status);
-        fp = fopen("hm2_function01.csv", "a");
+        fp = fopen("hm2_test_res.csv", "a");
         for (int i = 0; i < L; i++) {
 		    fprintf(fp, "%f, ", unew[i]);
         }
