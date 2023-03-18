@@ -8,8 +8,8 @@ ssh -o GSSAPIDelegateCredentials=yes -o GSSAPIKeyExchange=yes -o GSSAPIAuthentic
 
 To allocate time-slot, run `salloc -n <#core> -t <#time> -p shared -A edu23.sf2568`, an example might be:
 ```
-salloc -n 7 -t 00:01:00 -p shared -A edu23.sf2568
+salloc -n 1 -t 00:10:00 -p shared -A edu23.sf2568
 cc odd_even_transposition_sort.c -o odd_even_transposition_sort.x
-srun ./odd_even_transposition_sort.x 100 -05
+srun ./odd_even_transposition_sort.x 1000 -05
 ```
 

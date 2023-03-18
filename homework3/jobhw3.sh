@@ -4,21 +4,21 @@
 # node.
 
 # time allocation
-#SBATCH -A edu22.sf2568
+#SBATCH -A edu23.sf2568
 # job name
-#SBATCH -J myjob
+#SBATCH -J myjob_1
 # email notification
 #SBATCH --mail-type=BEGIN,END
 # 10 minutes wall-clock time will be given to this job
-#SBATCH -t 00:10:00
+#SBATCH -t 24:00:00
 # Number of nodes
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 # Number of tasks per node
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=1
 # Number of tasks per core (prevent hyperthreading)
 #SBATCH --ntasks-per-core=1
 #SBATCH --cpus-per-task=1
 # Use Dardel's main partition
 #SBATCH -p main
 
-srun ./odd_even_transposition_sort.x
+srun ./odd_even_transposition_sort.x 1000000 -5 > slurm_sort_1.out

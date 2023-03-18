@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include "mpi.h"
 
@@ -40,30 +41,26 @@ int main(int argc, char **argv) {
     for (int i = 0; i < I; i++) {
         x[i] = ((double) random())/(RAND_MAX);
     }
-    printf("p%d Original x: ", p);
-    for (int i = 0; i < I; i++) {
-        printf("%f, ", x[i]);
-    }
-    
+    // printf("p%d Original x: ", p);
     // for (int i = 0; i < I; i++) {
-    //     printf("p%d: %f, ", p, x[i]);
+    //     printf("%f, ", x[i]);
     // }
-    printf("\n");
+    
+    // printf("\n");
     // Odd-even transposition sort
     bool evenphase = 1;
     bool evenprocess = EVENNUMBER(p);
 
     // printf("p%d: %d\n", p, L);
-    for (int step = 0; step < 2*N; step++) {
+    for (int step = 0; step < N; step++) {
         // Handles ghost points
         // printf("p%d, phase%d: %d\n", p, evenphase, I);
-
         if (P!=1) {
 
             if ((evenphase && evenprocess) || (!evenphase && !evenprocess)) {
 
                 if ((EVENNUMBER(P) && (evenprocess || p <= P-3)) || (!EVENNUMBER(P) && (!evenprocess || p!=P-1))) {
-                    double *received_elem = (double *)malloc(sizeof(double));
+                    double *received_elem = (double *) malloc(sizeof(double));
                     MPI_Send(&x[I-1], 1, MPI_DOUBLE, p+1, tag, MPI_COMM_WORLD);
                     MPI_Recv(received_elem, 1, MPI_DOUBLE, p+1, tag, MPI_COMM_WORLD, &status);               
                     if (*received_elem < x[I-1])
@@ -72,7 +69,7 @@ int main(int argc, char **argv) {
                 }
             } else {
                 if ((EVENNUMBER(P) && (!evenprocess || p >= 2)) || (!EVENNUMBER(P) && (evenprocess || p!=0))) {
-                    double *received_elem = (double *)malloc(sizeof(double));
+                    double *received_elem = (double *) malloc(sizeof(double));
                     MPI_Recv(received_elem, 1, MPI_DOUBLE, p-1, tag, MPI_COMM_WORLD, &status);               
                     MPI_Send(&x[0], 1, MPI_DOUBLE, p-1, tag, MPI_COMM_WORLD);
                     if (*received_elem > x[0])
@@ -81,10 +78,7 @@ int main(int argc, char **argv) {
                 }
             }
         }
-        // global_i = p*L+MIN(p, res)+i;
-        // evennumber = EVENNUMBER(global_i);
 
-        there:
         /* Inside the processor, we'll just perform bubble sort */
         for (int i = 0; i < I-1; i++) {
             // printf("p%d: %d %s, ", p, global_i, evennumber ? "true" : "false");
@@ -103,30 +97,36 @@ int main(int argc, char **argv) {
     // }
     
     FILE *fp;
+    char out_str[50];
+    // itoa(P_str, P, 11), itoa(N_str, N, 2);
+    char P_str[11], N_str[9];
+    sprintf(P_str, "%d", P);
+    sprintf(N_str, "%d", N);
+
+    strcpy(out_str, "sorted_example_P");
+    strcat(out_str, P_str);
+    strcat(out_str, "_N");
+    strcat(out_str, N_str);
+    strcat(out_str, ".txt");
+
     if (p==0){ // Master process
-        fp = fopen("test.txt", "w");
+        fp = fopen(out_str, "w");
 		for (int i = 0; i < I; i++) {
 		    fprintf(fp, "%f, ", x[i]);
         }
         fclose(fp);		
-        MPI_Send("hi", 2, MPI_CHAR, 1, tag, MPI_COMM_WORLD);
+        if (P!=1) // Only send if there are more than 1 processors
+            MPI_Send("hi", 2, MPI_CHAR, 1, tag, MPI_COMM_WORLD);
     } else {
-        
         char message[2]; // Nonesense message
         MPI_Recv(message, 2, MPI_CHAR, p-1, tag, MPI_COMM_WORLD, &status);
-        fp = fopen("test.txt", "a");
-        for (int i = 0; i < I; i++) {
-		    fprintf(fp, "%f, ", x[i]);
-        }
+        fp = fopen(out_str, "a");
         // fprintf(fp, "\n");
         if (p!=P-1) { // If it's not the last processor, keep sending the signals forward
             MPI_Send(message, 2, MPI_CHAR, p+1, tag, MPI_COMM_WORLD);
         }
         fclose(fp);
     }
-    
-
-
     free(x);
     printf("Process %d finished\n", p);
     MPI_Finalize();
